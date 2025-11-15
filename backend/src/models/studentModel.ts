@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 mongoose.connect(`mongodb://localhost:27017/studentsDB`);
 
 const studentSchema = new mongoose.Schema({
-  enrollNumber : String ,
+  enrollmentNumber : String ,
   firstName : String , 
   lastName : String , 
   age : Number , 
-  class : String , 
+  standard : String , 
   section : String , 
   mobileNumber : String , 
   address : String 
