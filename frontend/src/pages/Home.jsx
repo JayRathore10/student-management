@@ -1,31 +1,45 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-export function Home(){
+export function Home() {
 
-  useEffect(()=>{
-    try{
-      const students = axios.get("/api/students");
-      console.log(students.data);
-    }catch(err){
-      console.log(err);
+  const [students , setStudents] = useState([]);
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const res = await axios.get("/api/students");
+        console.log(res.data);
+        setStudents(res.data);
+      } catch (err) {
+        console.log(err);
+      }
     }
-  } , []);
+    fetchStudents();
+  }, [setStudents]);
 
   const navigate = useNavigate();
 
-  const navigation = (page)=>{
+  const navigation = (page) => {
     navigate(page);
   }
 
-  return(
+  return (
     <>
       <button className="add-btn"
         onClick={() => navigation('/add-student')}
       >Add Student</button>
-      <button className="del-btn" 
+      <button className="del-btn"
         onClick={() => navigate('/delete-student')}
       >Delete Student</button>
+      { 
+        students && 
+          students.map((st , index)=>(
+            <p
+              key={index}
+            >{st.firstName}</p>
+          ))
+      }
     </>
   );
 }

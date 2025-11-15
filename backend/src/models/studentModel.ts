@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+mongoose.connect(`mongodb://localhost:27017/studentsDB`);
+
 const studentSchema = new mongoose.Schema({
   enrollNumber : String ,
   firstName : String , 
