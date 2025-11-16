@@ -4,6 +4,13 @@ import { studentModel } from "../models/studentModel";
 export const getAllStudent  = async (req : Request  , res : Response)=>{
   try{    
     const students = await studentModel.find();
+
+    if(students.length === 0 ){
+      return res.status(404).json({
+        message : "No students"
+      })
+    }
+
     res.send(students);
     res.status(200).json({
       message : "Students List", 
@@ -19,7 +26,7 @@ export const getAllStudent  = async (req : Request  , res : Response)=>{
 
 export const addNewStudent = async(req : Request , res : Response)=>{
   const {
-    enrollmentNumber,
+    enrollNumber,
     firstName ,
     lastName , 
     age , 
@@ -33,7 +40,7 @@ export const addNewStudent = async(req : Request , res : Response)=>{
 
   try{
     const newStudent = await studentModel.create({
-    enrollmentNumber, 
+    enrollNumber, 
     firstName  , 
     lastName , 
     age : ageNum, 
@@ -53,3 +60,25 @@ export const addNewStudent = async(req : Request , res : Response)=>{
   }
 }
 
+export const deleteStudent = async(req : Request , res: Response)=>{
+  const enrollNumber : string | undefined = req.params.enrollNumber;
+  try{
+    const deletedStudent = await studentModel.findOneAndDelete({enrollNumber : enrollNumber});
+
+    if(!deletedStudent){
+      return  res.status(404).json({
+        message : "Not Found"
+      })
+    }
+
+    res.status(200).json({
+      message : "Delete a student" , 
+      deletedStudent
+    })
+    res.send(deleteStudent);
+  }catch(err){
+    res.status(500).json({
+      message : err
+    })
+  }
+}
