@@ -82,3 +82,55 @@ export const deleteStudent = async(req : Request , res: Response)=>{
     })
   }
 }
+
+export const searchStudents = async (req : Request , res : Response)=>{
+  try{
+    const {enrollNumber ,firstName , lastName , age , standard ,   section} = req.query;
+
+    const filter : Record<string , any> = {};
+
+    if(enrollNumber){
+      filter.enrollNumber = enrollNumber;
+    }
+      
+    if(firstName){
+      filter.firstName = { $regex: new RegExp(firstName  as string ,  "i")};
+    }
+
+    if(lastName){
+      filter.lastName = {$regex : new RegExp(lastName as string , "i")};
+    }
+
+    if(age){
+      filter.age = Number(age);
+    }
+
+    if(standard){
+      filter.standard =  {$regex : new RegExp(standard as string , "i")};
+    }
+
+    if(section){
+      filter.section = {$regex : new RegExp(section as string , "i")}
+    }
+
+    const foundedStudent = await studentModel.find(filter);
+
+    if(!foundedStudent) {
+      return res.status(404).json({
+        message : "Not Found"
+      })
+    }
+
+    res.send(foundedStudent);
+    return res.status(200).json({
+      message : "Founded Student" , 
+      foundedStudent
+    })
+
+  }
+ catch(err){
+  res.status(500).json({
+    message : err
+  })
+}
+}
