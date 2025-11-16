@@ -16,6 +16,7 @@ export const getAllStudent  = async (req : Request  , res : Response)=>{
   }
 }
 
+
 export const addNewStudent = async(req : Request , res : Response)=>{
   const {
     enrollmentNumber,
@@ -31,22 +32,22 @@ export const addNewStudent = async(req : Request , res : Response)=>{
   const ageNum : Number | undefined = Number(age);
 
   try{
-    const newStudent = studentModel.create(
-      {enrollmentNumber : enrollmentNumber} ,
-      {firstName : firstName} , 
-      {lastName : lastName} , 
-      {age : ageNum} , 
-      {standard : standard} , 
-      {section : section }, 
-      {mobileNumber : mobileNumber}, 
-      {address : address}
-    )
+    const newStudent = await studentModel.create({
+    enrollmentNumber, 
+    firstName  , 
+    lastName , 
+    age : ageNum, 
+    standard , 
+    section , 
+    mobileNumber, 
+    address
+  })
     res.status(200).json({
       message : "New Student Created",
       newStudent
     })
   }catch(err){
-    res.status(501).json({
+    res.status(500).json({
       message : err
     })
   }
