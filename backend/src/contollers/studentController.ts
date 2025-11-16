@@ -115,13 +115,12 @@ export const searchStudents = async (req : Request , res : Response)=>{
 
     const foundedStudent = await studentModel.find(filter);
 
-    if(!foundedStudent) {
+    if(foundedStudent.length === 0) {
       return res.status(404).json({
         message : "Not Found"
       })
     }
 
-    res.send(foundedStudent);
     return res.status(200).json({
       message : "Founded Student" , 
       foundedStudent
@@ -129,7 +128,7 @@ export const searchStudents = async (req : Request , res : Response)=>{
 
   }
  catch(err){
-  res.status(500).json({
+  return res.status(500).json({
     message : err
   })
 }
