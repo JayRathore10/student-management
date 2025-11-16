@@ -1,4 +1,5 @@
 import { Request  , Response } from "express";
+import { Parser } from "json2csv";
 import { studentModel } from "../models/studentModel";
 
 export const getAllStudent  = async (req : Request  , res : Response)=>{
@@ -11,13 +12,12 @@ export const getAllStudent  = async (req : Request  , res : Response)=>{
       })
     }
 
-    res.send(students);
-    res.status(200).json({
+    return res.status(200).json({
       message : "Students List", 
       students 
     })
   }catch(err){
-    res.status(404).json({
+    return res.status(404).json({
       message : "Not Found" , 
     })
   }
@@ -71,11 +71,10 @@ export const deleteStudent = async(req : Request , res: Response)=>{
       })
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       message : "Delete a student" , 
       deletedStudent
     })
-    res.send(deleteStudent);
   }catch(err){
     res.status(500).json({
       message : err
@@ -113,9 +112,9 @@ export const searchStudents = async (req : Request , res : Response)=>{
       filter.section = {$regex : new RegExp(section as string , "i")}
     }
 
-    const foundedStudent = await studentModel.find(filter);
+    const foundStudent = await studentModel.find(filter);
 
-    if(foundedStudent.length === 0) {
+    if(foundStudent.length === 0) {
       return res.status(404).json({
         message : "Not Found"
       })
@@ -123,7 +122,7 @@ export const searchStudents = async (req : Request , res : Response)=>{
 
     return res.status(200).json({
       message : "Founded Student" , 
-      foundedStudent
+      foundStudent
     })
 
   }
@@ -132,4 +131,72 @@ export const searchStudents = async (req : Request , res : Response)=>{
     message : err
   })
 }
+}
+
+export const updateStudent = async (req : Request , res : Response)=>{
+  try{
+    const {enrollNumber} = req.params;
+    const update = req.body;
+
+    if(!enrollNumber){ 
+      return res.status(400).json({
+        message : "Not Found"
+      })
+    }
+
+    const updateStudent = await studentModel.findOneAndUpdate({enrollNumber}, update , {new : true})
+
+    if(!updateStudent){
+      return res.status(404).json({ 
+        message : "Not Found"
+      })
+    }
+
+    return res.status(200).json({
+      message : "Updated Student", 
+      updateStudent
+    })
+
+  }catch(err){
+    return res.status(500).json({
+      message : err
+    })
+  }
+
+}
+
+export const exportStudentCSV = async(req : Request , res : Response)=>{
+  try{
+    const students = await studentModel.find();
+    
+    if(students.length === 0){
+      return res.status(404).json({
+        message : "Not Found" 
+      })
+    }
+
+    const fields = [
+      { label: "Enrollment Number", value: "enrollNumber" },
+      { label: "First Name", value: "firstName" },
+      { label: "Last Name", value: "lastName" },
+      { label: "Age", value: "age" },
+      { label: "Standard", value: "standard" },
+      { label: "Section", value: "section" },
+      { label: "Mobile Number", value: "mobileNumber" },
+      { label: "Address", value: "address" },
+    ];
+
+    const json2csvParser = new Parser({fields});
+    const csv = json2csvParser.parse(students);
+
+    res.setHeader("Content-type", "text/csv");
+    res.setHeader("Content-Disposition" , "attachment; filename=student.csv");
+
+    return res.status(200).send(csv);
+
+  }catch(err){
+    return res.status(500).json({
+      message : err
+    })
+  }
 }
