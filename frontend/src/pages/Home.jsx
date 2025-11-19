@@ -10,7 +10,7 @@ export function Home() {
       try {
         const res = await axios.get("/api/students");
         console.log(res.data);
-        setStudents(res.data);
+        setStudents(res.data.students);
       } catch (err) {
         console.log(err);
       }
