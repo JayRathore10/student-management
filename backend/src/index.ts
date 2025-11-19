@@ -2,6 +2,8 @@ import express ,{Request , Response} from "express";
 import cors from "cors";
 import { studentsRouter } from "./routes/studentsRouter";
 import { studentModel } from "./models/studentModel";
+import { teacherRouter } from "./routes/teacherRouter";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -11,10 +13,12 @@ app.use(cors({
   origin: "http://localhost:5173"
 }));
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 
 app.use("/api/students", studentsRouter);
+app.use("/api/teachers" , teacherRouter);
 
 // dummy data for testing 
 app.get("/add-dummy", async (req : Request , res : Response)=>{

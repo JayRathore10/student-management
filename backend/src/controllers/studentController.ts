@@ -1,177 +1,177 @@
-import { Request  , Response } from "express";
+import { Request, Response } from "express";
 import { Parser } from "json2csv";
 import { studentModel } from "../models/studentModel";
 
-export const getAllStudent  = async (req : Request  , res : Response)=>{
-  try{    
+export const getAllStudent = async (req: Request, res: Response) => {
+  try {
     const students = await studentModel.find();
 
-    if(students.length === 0 ){
+    if (students.length === 0) {
       return res.status(404).json({
-        message : "No students"
+        message: "No students"
       })
     }
 
     return res.status(200).json({
-      message : "Students List", 
-      students 
+      message: "Students List",
+      students
     })
-  }catch(err){
+  } catch (err) {
     return res.status(404).json({
-      message : "Not Found" , 
+      message: "Not Found",
     })
   }
 }
 
 
-export const addNewStudent = async(req : Request , res : Response)=>{
+export const addNewStudent = async (req: Request, res: Response) => {
   const {
     enrollNumber,
-    firstName ,
-    lastName , 
-    age , 
-    standard , 
-    section , 
-    mobileNumber , 
+    firstName,
+    lastName,
+    age,
+    standard,
+    section,
+    mobileNumber,
     address
   } = req.body;
 
-  const ageNum : Number | undefined = Number(age);
+  const ageNum: Number | undefined = Number(age);
 
-  try{
+  try {
     const newStudent = await studentModel.create({
-    enrollNumber, 
-    firstName  , 
-    lastName , 
-    age : ageNum, 
-    standard , 
-    section , 
-    mobileNumber, 
-    address
-  })
+      enrollNumber,
+      firstName,
+      lastName,
+      age: ageNum,
+      standard,
+      section,
+      mobileNumber,
+      address
+    })
     res.status(200).json({
-      message : "New Student Created",
+      message: "New Student Created",
       newStudent
     })
-  }catch(err){
+  } catch (err) {
     res.status(500).json({
-      message : err
+      message: err
     })
   }
 }
 
-export const deleteStudent = async(req : Request , res: Response)=>{
-  const enrollNumber : string | undefined = req.params.enrollNumber;
-  try{
-    const deletedStudent = await studentModel.findOneAndDelete({enrollNumber : enrollNumber});
+export const deleteStudent = async (req: Request, res: Response) => {
+  const enrollNumber: string | undefined = req.params.enrollNumber;
+  try {
+    const deletedStudent = await studentModel.findOneAndDelete({ enrollNumber: enrollNumber });
 
-    if(!deletedStudent){
-      return  res.status(404).json({
-        message : "Not Found"
+    if (!deletedStudent) {
+      return res.status(404).json({
+        message: "Not Found"
       })
     }
 
     return res.status(200).json({
-      message : "Delete a student" , 
+      message: "Delete a student",
       deletedStudent
     })
-  }catch(err){
+  } catch (err) {
     res.status(500).json({
-      message : err
+      message: err
     })
   }
 }
 
-export const searchStudents = async (req : Request , res : Response)=>{
-  try{
-    const {enrollNumber ,firstName , lastName , age , standard ,   section} = req.query;
+export const searchStudents = async (req: Request, res: Response) => {
+  try {
+    const { enrollNumber, firstName, lastName, age, standard, section } = req.query;
 
-    const filter : Record<string , any> = {};
+    const filter: Record<string, any> = {};
 
-    if(enrollNumber){
+    if (enrollNumber) {
       filter.enrollNumber = enrollNumber;
     }
-      
-    if(firstName){
-      filter.firstName = { $regex: new RegExp(firstName  as string ,  "i")};
+
+    if (firstName) {
+      filter.firstName = { $regex: new RegExp(firstName as string, "i") };
     }
 
-    if(lastName){
-      filter.lastName = {$regex : new RegExp(lastName as string , "i")};
+    if (lastName) {
+      filter.lastName = { $regex: new RegExp(lastName as string, "i") };
     }
 
-    if(age){
+    if (age) {
       filter.age = Number(age);
     }
 
-    if(standard){
-      filter.standard =  {$regex : new RegExp(standard as string , "i")};
+    if (standard) {
+      filter.standard = { $regex: new RegExp(standard as string, "i") };
     }
 
-    if(section){
-      filter.section = {$regex : new RegExp(section as string , "i")}
+    if (section) {
+      filter.section = { $regex: new RegExp(section as string, "i") }
     }
 
     const foundStudent = await studentModel.find(filter);
 
-    if(foundStudent.length === 0) {
+    if (foundStudent.length === 0) {
       return res.status(404).json({
-        message : "Not Found"
+        message: "Not Found"
       })
     }
 
     return res.status(200).json({
-      message : "Founded Student" , 
+      message: "Founded Student",
       foundStudent
     })
 
   }
- catch(err){
-  return res.status(500).json({
-    message : err
-  })
-}
+  catch (err) {
+    return res.status(500).json({
+      message: err
+    })
+  }
 }
 
-export const updateStudent = async (req : Request , res : Response)=>{
-  try{
-    const {enrollNumber} = req.params;
+export const updateStudent = async (req: Request, res: Response) => {
+  try {
+    const { enrollNumber } = req.params;
     const update = req.body;
 
-    if(!enrollNumber){ 
+    if (!enrollNumber) {
       return res.status(400).json({
-        message : "Not Found"
+        message: "Not Found"
       })
     }
 
-    const updateStudent = await studentModel.findOneAndUpdate({enrollNumber}, update , {new : true})
+    const updateStudent = await studentModel.findOneAndUpdate({ enrollNumber }, update, { new: true })
 
-    if(!updateStudent){
-      return res.status(404).json({ 
-        message : "Not Found"
+    if (!updateStudent) {
+      return res.status(404).json({
+        message: "Not Found"
       })
     }
 
     return res.status(200).json({
-      message : "Updated Student", 
+      message: "Updated Student",
       updateStudent
     })
 
-  }catch(err){
+  } catch (err) {
     return res.status(500).json({
-      message : err
+      message: err
     })
   }
 
 }
 
-export const exportStudentCSV = async(req : Request , res : Response)=>{
-  try{
+export const exportStudentCSV = async (req: Request, res: Response) => {
+  try {
     const students = await studentModel.find();
-    
-    if(students.length === 0){
+
+    if (students.length === 0) {
       return res.status(404).json({
-        message : "Not Found" 
+        message: "Not Found"
       })
     }
 
@@ -186,17 +186,17 @@ export const exportStudentCSV = async(req : Request , res : Response)=>{
       { label: "Address", value: "address" },
     ];
 
-    const json2csvParser = new Parser({fields});
+    const json2csvParser = new Parser({ fields });
     const csv = json2csvParser.parse(students);
 
     res.setHeader("Content-type", "text/csv");
-    res.setHeader("Content-Disposition" , "attachment; filename=student.csv");
+    res.setHeader("Content-Disposition", "attachment; filename=student.csv");
 
     return res.status(200).send(csv);
 
-  }catch(err){
+  } catch (err) {
     return res.status(500).json({
-      message : err
+      message: err
     })
   }
 }
