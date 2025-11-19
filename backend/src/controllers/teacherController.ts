@@ -74,3 +74,16 @@ export const dummySignUp = async (req : Request , res : Response)=>{
     });
   }
 }
+
+export const logOut = async(req : Request , res : Response)=>{
+  try{
+    res.cookie("token" , "");
+    return res.status(200).json({
+      message : "Log Out"
+    })
+  }catch(err){
+    return res.status(500).json({
+      messsage : err
+    })
+  }
+}
